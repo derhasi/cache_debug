@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_page_attachments().
+ */
+function cache_debug_page_attachments(array &$attachments) {
+//  if (!\Drupal::currentUser()->hasPermission('access cache_debug')) {
+//    return;
+//  }
+
+  $attachments['#attached']['library'][] = 'cache_debug/cache-debug';
+}

@@ -1,0 +1,5 @@
+name: Cache Debug
+type: module
+description: Provides cache backend for debugging
+core: 8.x
+package: devel

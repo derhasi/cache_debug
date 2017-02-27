@@ -1,0 +1,9 @@
+cache-debug:
+  version: 1.x
+  css:
+    theme:
+      css/cache-debug.css: {}
+  js:
+    js/cache-debug.js: {}
+  dependencies:
+    - core/jquery
