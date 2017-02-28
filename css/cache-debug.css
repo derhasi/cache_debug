@@ -7,10 +7,39 @@
   background: red;
   opacity: 0.25;
   content: attr(data-cache-debug);
-  z-index: 9999;
+  z-index: 5555;
   max-width: 100%;
   word-spacing: 30000px;
 }
 [data-cache-debug]:hover:before {
   opacity: 0.75;
+}
+
+#cache-debug {
+  background: lightblue;
+  position: absolute;
+  opacity: 1;
+  right: 0;
+  top: 0;
+  max-width: 50%;
+  max-height: 50%;
+  overflow: auto;
+  z-index: 9999;
+}
+#cache-debug:before {
+  content: 'Cache Debug';
+  font-size: 2em;
+  font-weight: bold;
+}
+
+
+.cache-debug-item {
+}
+.cache-debug-item__method {
+  font-weight: bold;
+}
+.cache-debug-item__cid {
+}
+.cache-debug-item__tags {
+  opacity: 0.7;
 }

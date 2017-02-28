@@ -87,6 +87,12 @@
     if (this.data.length) {
       var attrValue = this.buildAttrValue();
       $(this.el).attr('data-cache-debug', attrValue);
+      $(this.el).mouseenter(function(){
+
+        var wrapper = obj.prepareWrapper();
+        wrapper.html('');
+        wrapper.append(obj.buildHtml());
+      });
     }
   };
 
@@ -100,6 +106,34 @@
       cids[item.pureCID()] = 1;
     });
     return Object.keys(cids).join('\n');
+  };
+
+  /**
+   * Builds an HTMl representation of the cache debug data.
+   * @returns {*|HTMLElement}
+   */
+  Drupal.CacheDebug.prototype.buildHtml = function () {
+    var html = $('<div class="cache-debug"></div>');
+
+    this.data.forEach(function(item) {
+      var wrapper = $('<div class="cache-debug-item"></div>');
+      $('<div class="cache-debug-item__method"></div>').text(item.method).appendTo(wrapper);
+      $('<div class="cache-debug-item__cid"></div>').text(item.cid).appendTo(wrapper);
+      $('<div class="cache-debug-item__tags"></div>').text(item.tags).appendTo(wrapper);
+      html.append(wrapper);
+    });
+    return html;
+  };
+
+  /**
+   * Prepares the wrapper element.
+   * @returns {jQuery}
+   */
+  Drupal.CacheDebug.prototype.prepareWrapper = function() {
+    if (!$('#cache-debug').length) {
+      $('body').append('<div id="cache-debug"></div>');
+    }
+    return $('#cache-debug');
   };
 
   /**
