@@ -37,6 +37,7 @@
   margin: 1em;
   border: 2px solid black;
   overflow: auto;
+  color: black;
 }
 .cache-debug-item__method {
   font-weight: bold;
@@ -55,4 +56,13 @@
   list-style-type: square;
   color: white;
   background: black;
+}
+
+.cache-debug-item[data-cache-debug-method="get"] {
+  border-color: darkgray;
+  color: darkgray;
+}
+[data-cache-debug-method="get"] .cache-debug-item__method,
+[data-cache-debug-method="get"] .cache-debug-item__tags {
+  background: darkgray;
 }

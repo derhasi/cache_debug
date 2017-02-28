@@ -116,7 +116,7 @@
     var html = $('<div class="cache-debug"></div>');
 
     this.data.forEach(function(item) {
-      var wrapper = $('<div class="cache-debug-item"></div>');
+      var wrapper = $('<div>', {class: "cache-debug-item", "data-cache-debug-method": item.method});
       $('<div>', {class: 'cache-debug-item__method'}).text(item.method).appendTo(wrapper);
       $('<div>', {class: 'cache-debug-item__keys'}).text(item.getKeys()).appendTo(wrapper);
 
