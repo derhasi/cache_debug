@@ -25,6 +25,9 @@
       $('*', context).once('cache-debug').each(function() {
         $(this).drupalCacheDebug({});
       });
+
+      // Ensure wrapper exists.
+      Drupal.CacheDebugWrapper.wrapper();
     }
   };
 
@@ -233,19 +236,21 @@
       if (!$('#cache-debug').length) {
 
         var wrapper = $('<div>', {id:'cache-debug', class:'cache-debug-wrapper'}).appendTo('body');
+        $('html').attr('data-cache-debug-mode', 'hide');
+
         // Actions
         var actions = $('<div>', {class:'cache-debug-wrapper__actions'}).appendTo(wrapper);
         $('<span>').text('BOTH').appendTo(actions).on('click', function() {
-          $('body').attr('data-cache-debug-mode', 'both');
+          $('html').attr('data-cache-debug-mode', 'both');
         });
         $('<span>').text('GET').appendTo(actions).on('click', function() {
-          $('body').attr('data-cache-debug-mode', 'get');
+          $('html').attr('data-cache-debug-mode', 'get');
         });
         $('<span>').text('SET').appendTo(actions).on('click', function() {
-          $('body').attr('data-cache-debug-mode', 'set');
+          $('html').attr('data-cache-debug-mode', 'set');
         });
         $('<span>').text('hide').appendTo(actions).on('click', function() {
-          $('body').attr('data-cache-debug-mode', 'hide');
+          $('html').attr('data-cache-debug-mode', 'hide');
         });
 
         $(document).on('keyup.cache-debug', function(e) {

@@ -87,3 +87,9 @@
 [data-cache-debug-mode="set"] .cache-debug-item[data-cache-debug-method="get"] {
   display: none;
 }
+[data-cache-debug-mode="hide"] [data-cache-debug] {
+  outline: none;
+}
+[data-cache-debug-mode="hide"] [data-cache-debug]:before {
+  content: '';
+}
