@@ -1,3 +1,6 @@
+/**
+ * Outlines for visual.
+ */
 [data-cache-debug]{
   outline: 2px dashed red;
 }
@@ -16,6 +19,9 @@
   opacity: 0.75;
 }
 
+/**
+ * Wrapper
+ */
 #cache-debug {
   background: lightblue;
   position: fixed;
@@ -32,7 +38,14 @@
   font-size: 2em;
   font-weight: bold;
 }
+.cache-debug-wrapper__actions > * {
+  margin-right: 1em;
+  cursor: pointer;
+}
 
+/**
+ * Debug item.
+ */
 .cache-debug-item {
   margin: 1em;
   border: 2px solid black;
@@ -57,7 +70,6 @@
   color: white;
   background: black;
 }
-
 .cache-debug-item[data-cache-debug-method="get"] {
   border-color: darkgray;
   color: darkgray;
@@ -65,4 +77,13 @@
 [data-cache-debug-method="get"] .cache-debug-item__method,
 [data-cache-debug-method="get"] .cache-debug-item__tags {
   background: darkgray;
+}
+
+/**
+ * Mode overrides.
+ */
+[data-cache-debug-mode="hide"] .cache-debug-item,
+[data-cache-debug-mode="get"] .cache-debug-item[data-cache-debug-method="set"],
+[data-cache-debug-mode="set"] .cache-debug-item[data-cache-debug-method="get"] {
+  display: none;
 }

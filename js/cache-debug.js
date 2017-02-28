@@ -108,10 +108,7 @@
       var attrValue = this.buildAttrValue();
       this.$element.attr('data-cache-debug', attrValue);
       this.$element.mouseenter(function(){
-
-        var wrapper = obj.prepareWrapper();
-        wrapper.html('');
-        wrapper.append(obj.buildHtml());
+        Drupal.CacheDebugWrapper.fill(obj.$element);
       });
     }
   };
@@ -156,26 +153,6 @@
       html.append(wrapper);
     });
     return html;
-  };
-
-  /**
-   * Prepares the wrapper element.
-   * @returns {jQuery}
-   */
-  Drupal.CacheDebug.prototype.prepareWrapper = function() {
-    if (!$('#cache-debug').length) {
-      $('body').append('<div id="cache-debug"></div>');
-
-      $(document).on('keyup.cache-debug', function(e) {
-        // Remove wrapper when escape key is pressed.
-        if (e.keyCode == 27) {
-          $('#cache-debug').remove();
-          $(document).off('keyup.cache-debug');
-        }
-      });
-
-    }
-    return $('#cache-debug');
   };
 
   /**
@@ -245,5 +222,60 @@
   Drupal.CacheDebugItem.isValid = function (raw_string) {
     return (raw_string.trim().indexOf(Drupal.CacheDebugItem.prefix) === 0);
   };
+
+  /**
+   * Wrapper element to shoe debug data.
+   * @type {{wrapper: Drupal.CacheDebugWrapper.wrapper, baseElement: null, fill: Drupal.CacheDebugWrapper.fill}}
+   */
+  Drupal.CacheDebugWrapper = {
+    wrapper: function() {
+      // In case cache debug wrapper is not present, we build it.
+      if (!$('#cache-debug').length) {
+
+        var wrapper = $('<div>', {id:'cache-debug', class:'cache-debug-wrapper'}).appendTo('body');
+        // Actions
+        var actions = $('<div>', {class:'cache-debug-wrapper__actions'}).appendTo(wrapper);
+        $('<span>').text('BOTH').appendTo(actions).on('click', function() {
+          $('body').attr('data-cache-debug-mode', 'both');
+        });
+        $('<span>').text('GET').appendTo(actions).on('click', function() {
+          $('body').attr('data-cache-debug-mode', 'get');
+        });
+        $('<span>').text('SET').appendTo(actions).on('click', function() {
+          $('body').attr('data-cache-debug-mode', 'set');
+        });
+        $('<span>').text('hide').appendTo(actions).on('click', function() {
+          $('body').attr('data-cache-debug-mode', 'hide');
+        });
+
+        $(document).on('keyup.cache-debug', function(e) {
+          // Remove wrapper when escape key is pressed.
+          if (e.keyCode == 27) {
+            $('#cache-debug').remove();
+            $(document).off('keyup.cache-debug');
+          }
+        });
+      }
+      return $('#cache-debug');
+    },
+
+    /**
+     * @type {jQuery}
+     */
+    baseElement: null,
+
+    /**
+     *
+     * @param {jQuery} element
+     */
+    fill: function(element) {
+      Drupal.CacheDebugWrapper.baseElement = element;
+      var content = element.drupalCacheDebug().buildHtml();
+      Drupal.CacheDebugWrapper.wrapper().find('.cache-debug').remove();
+      Drupal.CacheDebugWrapper.wrapper().append(content);
+    }
+  }
+
+
 
 })(jQuery, Drupal, window.JSON, document);
