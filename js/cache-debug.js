@@ -21,76 +21,122 @@
    */
   Drupal.behaviors.CacheDebug = {
     attach: function (context) {
-
-      var $node = $('.recipe');
-
-      $('*', context).once('cache-helper').each(function() {
-
-        var data = Drupal.CacheDebug.getData(this);
-        if (data && data.length) {
-          Drupal.CacheDebug.buildData(this);
-        }
+      // Initialise for each element on the site.
+      $('*', context).once('cache-debug').each(function() {
+        Drupal.CacheDebug.create(this);
       });
     }
   };
 
+  /**
+   *
+   * @param el
+   * @constructor
+   */
+  Drupal.CacheDebug = function (el) {
+    this.el = el;
+    this.data = [];
+  };
 
-  Drupal.CacheDebug = {
+  /**
+   * Creates a cache debug instance for this element.
+   * @param el
+   */
+  Drupal.CacheDebug.create = function (el) {
+    var obj = new Drupal.CacheDebug(el);
+    obj.bind();
+  };
 
-    prefix: 'CACHE_DEBUG:',
+  /**
+   * Get comments from the element.
+   * @returns {Array}
+   */
+  Drupal.CacheDebug.prototype.getComments = function() {
+    var children = this.el.childNodes;
+    var comments = [];
 
-    getComments: function(elem) {
-      var children = elem.childNodes;
-      var comments = [];
-
-      for (var i=0, len=children.length; i<len; i++) {
-        if (children[i].nodeType == Node.COMMENT_NODE) {
-          comments.push(children[i].data.trim());
-        }
-      }
-      return comments;
-    },
-
-    getData: function (el) {
-      var comments = Drupal.CacheDebug.getComments(el);
-      var data = [];
-      for (var i = 0; i < comments.length; i++) {
-        if (comments[i].indexOf(Drupal.CacheDebug.prefix) === 0) {
-          data.push(
-            JSON.parse(comments[i].substr(Drupal.CacheDebug.prefix.length))
-          );
-        }
-      }
-      return data;
-    },
-
-    buildData: function (el) {
-      var data = Drupal.CacheDebug.getData(el);
-      var keys = {};
-      data.forEach(function(value) {
-        var parts = value.cid.split(':[', 2);
-        var pureCID = parts[0];
-        keys[pureCID] = 1;
-      });
-      $(el).attr('data-cache-helper', Object.keys(keys).join('\n'));
-    },
-
-
-    buildInterface: function (el) {
-      var data = Drupal.CacheDebug.getData(el);
-
-      if (data && data.length) {
-
-        var container = $('<div class="cache-helper"></div>');
-
-        for (var i = 0; i < data.length; i++) {
-          var obj = data[i];
-          container.append('<span>' + obj.cid + '</span>');
-        }
-
-        $(el).append(container);
+    for (var i=0, len=children.length; i<len; i++) {
+      if (children[i].nodeType == Node.COMMENT_NODE) {
+        comments.push(children[i].data.trim());
       }
     }
-  }
+    return comments;
+  };
+
+  /**
+   * Build data information.
+   * @returns {Array}
+   */
+  Drupal.CacheDebug.prototype.buildData = function () {
+    var comments = this.getComments();
+    this.data = [];
+    for (var i = 0; i < comments.length; i++) {
+      if (Drupal.CacheDebugItem.isValid(comments[i])) {
+        this.data.push(new Drupal.CacheDebugItem(comments[i]));
+      }
+    }
+    return this;
+  };
+
+  /**
+   * Binds functionality to the DOM.
+   */
+  Drupal.CacheDebug.prototype.bind = function() {
+    var obj = this;
+    this.buildData();
+    if (this.data.length) {
+      var attrValue = this.buildAttrValue();
+      $(this.el).attr('data-cache-debug', attrValue);
+    }
+  };
+
+  /**
+   * Builds the string for adding to the element.
+   * @returns {string}
+   */
+  Drupal.CacheDebug.prototype.buildAttrValue = function () {
+    var cids = {};
+    this.data.forEach(function(item) {
+      cids[item.pureCID()] = 1;
+    });
+    return Object.keys(cids).join('\n');
+  };
+
+  /**
+   * Representation of a single cache debug information.
+   * @param {String} raw_string
+   * @constructor
+   */
+  Drupal.CacheDebugItem = function (raw_string) {
+    var item = JSON.parse(raw_string.trim().substr(Drupal.CacheDebugItem.prefix.length));
+    this.cid = item.cid;
+    this.method = item.method;
+    this.tags = item.tags;
+  };
+
+  /**
+   * Provides the pure CID without context.
+   * @returns {String}
+   */
+  Drupal.CacheDebugItem.prototype.pureCID = function() {
+    var parts = this.cid.split(':[', 2);
+    return parts[0];
+  };
+
+  /**
+   * The prefix fo recognisiing cache debug data.
+   * @type {string}
+   */
+  Drupal.CacheDebugItem.prefix = 'CACHE_DEBUG:';
+
+  /**
+   * Checks if the string is a valid cache debut data.
+   * @param raw_string
+   * @returns {boolean}
+   */
+  Drupal.CacheDebugItem.isValid = function (raw_string) {
+    return (raw_string.trim().indexOf(Drupal.CacheDebugItem.prefix) === 0);
+  };
+
 
 })(jQuery, Drupal, window.JSON);

@@ -1,16 +1,16 @@
-[data-cache-helper]{
+[data-cache-debug]{
   outline: 2px dashed red;
 }
 
-[data-cache-helper]:before {
+[data-cache-debug]:before {
   position: absolute;
   background: red;
   opacity: 0.25;
-  content: attr(data-cache-helper);
+  content: attr(data-cache-debug);
   z-index: 9999;
   max-width: 100%;
   word-spacing: 30000px;
 }
-[data-cache-helper]:hover:before {
+[data-cache-debug]:hover:before {
   opacity: 0.75;
 }
