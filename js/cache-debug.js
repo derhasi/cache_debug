@@ -23,28 +23,44 @@
     attach: function (context) {
       // Initialise for each element on the site.
       $('*', context).once('cache-debug').each(function() {
-        Drupal.CacheDebug.create(this);
+        $(this).drupalCacheDebug({});
       });
     }
   };
 
-  /**
+  /*
+   * jQuery plugin wrapper.
    *
-   * @param el
-   * @constructor
+   * @returns {Drupal.CacheDebug}
    */
-  Drupal.CacheDebug = function (el) {
-    this.el = el;
-    this.data = [];
+  $.fn['drupalCacheDebug'] = function (options) {
+    var plugin = this.data('plugin_drupalCacheDebug');
+
+    // has plugin instantiated ?
+    if (plugin instanceof Drupal.CacheDebug) {
+      // if have options arguments, call plugin.init() again
+      if (typeof options !== 'undefined') {
+        plugin.init(options);
+      }
+    }
+    else {
+      plugin = new Drupal.CacheDebug(this, options);
+      this.data('plugin_drupalCacheDebug', plugin);
+    }
+
+    return plugin;
   };
 
   /**
-   * Creates a cache debug instance for this element.
-   * @param el
+   * Cache debug element handling.
+   * @param {jQuery} el
+   * @constructor
    */
-  Drupal.CacheDebug.create = function (el) {
-    var obj = new Drupal.CacheDebug(el);
-    obj.bind();
+  Drupal.CacheDebug = function (element, options) {
+    this.$element = element;
+    this.options = {};
+    this.data = [];
+    this.init(options);
   };
 
   /**
@@ -52,7 +68,7 @@
    * @returns {Array}
    */
   Drupal.CacheDebug.prototype.getComments = function() {
-    var children = this.el.childNodes;
+    var children = this.$element[0].childNodes;
     var comments = [];
 
     for (var i=0, len=children.length; i<len; i++) {
@@ -79,15 +95,19 @@
   };
 
   /**
-   * Binds functionality to the DOM.
+   * Initialize.
+   *
+   * @param options
    */
-  Drupal.CacheDebug.prototype.bind = function() {
-    var obj = this;
+  Drupal.CacheDebug.prototype.init = function(options) {
+    $.extend(this.options, options);
     this.buildData();
+    var obj = this;
+
     if (this.data.length) {
       var attrValue = this.buildAttrValue();
-      $(this.el).attr('data-cache-debug', attrValue);
-      $(this.el).mouseenter(function(){
+      this.$element.attr('data-cache-debug', attrValue);
+      this.$element.mouseenter(function(){
 
         var wrapper = obj.prepareWrapper();
         wrapper.html('');
@@ -225,6 +245,5 @@
   Drupal.CacheDebugItem.isValid = function (raw_string) {
     return (raw_string.trim().indexOf(Drupal.CacheDebugItem.prefix) === 0);
   };
-
 
 })(jQuery, Drupal, window.JSON, document);
