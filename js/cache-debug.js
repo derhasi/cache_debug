@@ -103,7 +103,7 @@
   Drupal.CacheDebug.prototype.buildAttrValue = function () {
     var cids = {};
     this.data.forEach(function(item) {
-      cids[item.pureCID()] = 1;
+      cids[item.getKeys()] = 1;
     });
     return Object.keys(cids).join('\n');
   };
@@ -117,9 +117,22 @@
 
     this.data.forEach(function(item) {
       var wrapper = $('<div class="cache-debug-item"></div>');
-      $('<div class="cache-debug-item__method"></div>').text(item.method).appendTo(wrapper);
-      $('<div class="cache-debug-item__cid"></div>').text(item.cid).appendTo(wrapper);
-      $('<div class="cache-debug-item__tags"></div>').text(item.tags).appendTo(wrapper);
+      $('<div>', {class: 'cache-debug-item__method'}).text(item.method).appendTo(wrapper);
+      $('<div>', {class: 'cache-debug-item__keys'}).text(item.getKeys()).appendTo(wrapper);
+
+      if (item.contexts && item.contexts.length) {
+        var contexts = $('<ul>', {class:'cache-debug-item__contexts'}).appendTo(wrapper);
+        item.contexts.forEach(function(context) {
+          $('<li>', {class:'cache-debug-item__contexts'}).text(context).appendTo(contexts);
+        });
+      };
+
+      if (item.tags && item.tags.length) {
+        var tags = $('<ul>', {class:'cache-debug-item__tags'}).appendTo(wrapper);
+        item.tags.forEach(function(tag) {
+          $('<li>', {class: 'cache-debug-item__tag'}).text(tag).appendTo(tags);
+        });
+      };
       html.append(wrapper);
     });
     return html;
@@ -132,7 +145,6 @@
   Drupal.CacheDebug.prototype.prepareWrapper = function() {
     if (!$('#cache-debug').length) {
       $('body').append('<div id="cache-debug"></div>');
-
 
       $(document).on('keyup.cache-debug', function(e) {
         // Remove wrapper when escape key is pressed.
@@ -156,15 +168,47 @@
     this.cid = item.cid;
     this.method = item.method;
     this.tags = item.tags;
+    this.keys = [];
+    this.contexts = [];
+    this.processCID();
   };
 
   /**
-   * Provides the pure CID without context.
+   * Process CID to fill keys and contexts.
+   */
+  Drupal.CacheDebugItem.prototype.processCID = function() {
+    this.keys = [];
+    this.contexts = [];
+    var obj = this;
+
+    const regex = /([^\[:]*|\[[^\]]*\]=[^:]*)(:|$)/g;
+    var result;
+
+    while ((result = regex.exec(this.cid)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (result.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
+
+      // Skip empty results.
+      if (!result[1].length) {
+        // Nothing
+      }
+      else if (result[1].indexOf('[') === 0) {
+        obj.contexts.push(result[1]);
+      }
+      else {
+        obj.keys.push(result[1]);
+      }
+    }
+  };
+
+  /**
+   * Provides the keys without context.
    * @returns {String}
    */
-  Drupal.CacheDebugItem.prototype.pureCID = function() {
-    var parts = this.cid.split(':[', 2);
-    return parts[0];
+  Drupal.CacheDebugItem.prototype.getKeys = function() {
+    return this.keys.join(':');
   };
 
   /**
