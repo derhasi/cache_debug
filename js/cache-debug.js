@@ -3,7 +3,7 @@
  * Attaches behaviors for cache_debug.
  */
 
-(function ($, Drupal, JSON) {
+(function ($, Drupal, JSON, document) {
 
   'use strict';
 
@@ -132,6 +132,16 @@
   Drupal.CacheDebug.prototype.prepareWrapper = function() {
     if (!$('#cache-debug').length) {
       $('body').append('<div id="cache-debug"></div>');
+
+
+      $(document).on('keyup.cache-debug', function(e) {
+        // Remove wrapper when escape key is pressed.
+        if (e.keyCode == 27) {
+          $('#cache-debug').remove();
+          $(document).off('keyup.cache-debug');
+        }
+      });
+
     }
     return $('#cache-debug');
   };
@@ -173,4 +183,4 @@
   };
 
 
-})(jQuery, Drupal, window.JSON);
+})(jQuery, Drupal, window.JSON, document);
