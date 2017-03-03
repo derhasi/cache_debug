@@ -67,18 +67,22 @@
   };
 
   /**
-   * Get comments from the element.
+   * Get comments for the element.
    * @returns {Array}
    */
   Drupal.CacheDebug.prototype.getComments = function() {
-    var children = this.$element[0].childNodes;
+    var node = this.$element[0];
     var comments = [];
-
-    for (var i=0, len=children.length; i<len; i++) {
-      if (children[i].nodeType == Node.COMMENT_NODE) {
-        comments.push(children[i].data.trim());
+    // Comments for the element, are those preceeding the element itself, so we
+    // run through the previous siblings till we have no siblings anymore or we
+    // get another element.
+    while (node.previousSibling && node.previousSibling.nodeType !== Node.ELEMENT_NODE) {
+      node = node.previousSibling;
+      if (node.nodeType == Node.COMMENT_NODE) {
+        comments.push(node.data.trim());
       }
     }
+
     return comments;
   };
 
