@@ -9,6 +9,6 @@ A cache debug helper for Drupal 8:
 
 ## Installation
 
-* Install the package via composer: `composer require derhasi/cache-debug:dev-master --dev`
+* Install the package via composer: `composer require derhasi/cache_debug:dev-master --dev`
 * Enable the module: `drush en cache_debug`
 * Add `$settings['cache']['bins']['render'] = 'cache.backend.cache_debug';` to your `settings.local.php` for checking local
